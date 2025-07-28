@@ -3,8 +3,10 @@ import getHlcg from './hlcg';
 export const route: Route = {
     path: '/:category',
     categories: ['new-media'],
-    example: '18hlw.com/feed/71966',
-    parameters: { category: '分类名' },
+    example: '/hl/hlcg?domain=example.com',
+    parameters: {
+        category: '分类名，如 hlcg, jrrs, jqrm, lsdg',
+    },
     features: {
         requireConfig: false,
         requirePuppeteer: false,
@@ -21,12 +23,26 @@ export const route: Route = {
     name: 'heiliao',
     maintainers: ['zy97'],
     handler,
+    description: `
+支持的分类：
+- hlcg
+- jrrs
+- jqrm
+- lsdg
+
+可选参数：
+- domain: 指定国内镜像域名，如 ?domain=example.com（不包含协议）
+    `,
 };
-async function handler(ctx) {
+async function handler(ctx: any) {
     let category = ctx.req.param('category');
     const categories = ['hlcg', 'jrrs', 'jqrm', 'lsdg'];
     if (!categories.includes(category)) {
         category = 'hlcg';
     }
-    return await getHlcg(category);
+
+    // 获取可选的域名参数
+    const customDomain = ctx.req.query('domain');
+
+    return await getHlcg(category, customDomain);
 }

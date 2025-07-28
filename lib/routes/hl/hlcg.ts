@@ -4,8 +4,11 @@ import cache from '@/utils/cache';
 import logger from '@/utils/logger';
 import { ofetch } from 'ofetch';
 
-const getHlcg = async (category) => {
-    const baseUrl = 'https://18hlw.com';
+const getHlcg = async (category: string, customDomain?: string) => {
+    // 如果提供了自定义域名，使用自定义域名；否则使用默认域名
+    customDomain = 'lrjdq.hbslhnxp.cc';
+    const domain = customDomain || '18hlw.com';
+    const baseUrl = `https://${domain}`;
     const link = `${baseUrl}/${category}/`;
 
     const response = await ofetch(link);
@@ -51,6 +54,7 @@ const getHlcg = async (category) => {
                         description += videoStr;
                     }
                 }
+
                 item.description = description;
                 item.pubDate = parseDate(publishedTime);
                 return item;
@@ -64,7 +68,7 @@ const getHlcg = async (category) => {
         item: results,
     };
 };
-function renderDPlayer(m3u8Url) {
+function renderDPlayer(m3u8Url: string) {
     return `
     <iframe title="视频播放器" width="800" height="450"
     src="https://video-player-vert-two.vercel.app/player.html?url=${m3u8Url}"></iframe>
