@@ -38,7 +38,9 @@ const getHlcg = async (category: string, customDomain?: string) => {
                 content.find('img').each((_, img) => {
                     const imgElement = $(img);
                     const src = imgElement.attr('onload').match(/loadImg\(this,'(.*?)'\)/)[1];
+                    const mySrc = `http://10.144.144.100:9090?image=${src}`;
                     imgElement.attr('alt', src);
+                    imgElement.attr('src', mySrc);
                     imgElement.removeAttr('onload');
                 });
                 let description = content.html();
