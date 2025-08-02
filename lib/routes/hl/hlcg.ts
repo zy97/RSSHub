@@ -32,7 +32,7 @@ const getHlcg = async (category: string, customDomain?: string) => {
                 const $ = load(response);
                 const publishedTime = $('meta[property="article:published_time"]').attr('content');
                 const content = $('.client-only-placeholder').first();
-                const videos = content.find('video');
+                const videos = content.find('.dplayer');
                 content.find('blockquote').remove();
                 content.find('div').remove();
                 content.find('img').each((_, img) => {
@@ -47,12 +47,11 @@ const getHlcg = async (category: string, customDomain?: string) => {
 
                 for (const video of videos.toArray()) {
                     const videoElement = $(video);
-                    const m3u8Url = videoElement.attr('poster');
-                    if (m3u8Url) {
-                        // console.log(`Found m3u8 URL: ${m3u8Url}`);
+                    const config = videoElement.attr('config');
+                    if (config) {
+                        const configObj = JSON.parse(config);
+                        const m3u8Url = configObj.video.url;
                         const videoStr = renderDPlayer(m3u8Url);
-                        // console.log(`Rendering DPlayer for m3u8 URL: ${videoStr}`);
-                        // replace the video element with a DPlayer player
                         description += videoStr;
                     }
                 }
