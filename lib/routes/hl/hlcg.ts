@@ -71,9 +71,8 @@ const getHlcg = async (category: string, customDomain?: string) => {
 };
 function renderDPlayer(m3u8Url: string) {
     return `
-    <iframe title="视频播放器" width="800" height="450"
+    <iframe title="视频播放器"
     src="http://10.144.144.100:8896/palyer.html?url=${m3u8Url}"></iframe>
-  <script>
     `;
 }
 export default getHlcg;
