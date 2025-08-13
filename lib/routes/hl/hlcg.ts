@@ -6,7 +6,7 @@ import { ofetch } from 'ofetch';
 
 const getHlcg = async (category: string, customDomain?: string) => {
     // 如果提供了自定义域名，使用自定义域名；否则使用默认域名
-    customDomain = 'lrjdq.hbslhnxp.cc';
+    customDomain = '0jrdg.abdlwmpc.top';
     const domain = customDomain || '18hlw.com';
     const baseUrl = `https://${domain}`;
     const link = `${baseUrl}/${category}/`;
