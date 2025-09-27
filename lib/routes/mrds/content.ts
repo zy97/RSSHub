@@ -4,11 +4,11 @@ import cache from '@/utils/cache';
 import logger from '@/utils/logger';
 import { ofetch } from 'ofetch';
 
-const getContent = async (category: string, customDomain?: string) => {
+const getContent = async (category: string) => {
     // 如果提供了自定义域名，使用自定义域名；否则使用默认域名
-    customDomain = 'base.uljqqsb.top';
-    const domain = customDomain || 'mrds66.com';
-    const baseUrl = `https://${domain}`;
+    const data = await ofetch(`http://127.0.0.1:3000/chigua/mrds`);
+    const baseUrl = data.url;
+
     const link = `${baseUrl}/category/${category}/`;
 
     const response = await ofetch(link);

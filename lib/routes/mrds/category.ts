@@ -28,6 +28,5 @@ export const route: Route = {
 async function handler(ctx: any) {
     const category = ctx.req.param('category');
     // 获取可选的域名参数
-    const customDomain = ctx.req.query('domain');
-    return await getContent(category, customDomain);
+    return await getContent(category);
 }

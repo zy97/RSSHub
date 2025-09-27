@@ -4,11 +4,11 @@ import cache from '@/utils/cache';
 import logger from '@/utils/logger';
 import { ofetch } from 'ofetch';
 
-const getHlcg = async (category: string, customDomain?: string) => {
+const getHlcg = async (category: string) => {
     // 如果提供了自定义域名，使用自定义域名；否则使用默认域名
-    customDomain = 'lrjdq.hbslhnxp.cc';
-    const domain = customDomain || '18hlw.com';
-    const baseUrl = `https://${domain}`;
+    const data = await ofetch(`http://127.0.0.1:3000/chigua/heiliao`);
+    const baseUrl = data.url;
+
     const link = `${baseUrl}/${category}/`;
 
     const response = await ofetch(link);

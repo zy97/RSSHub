@@ -41,8 +41,6 @@ async function handler(ctx: any) {
         category = 'hlcg';
     }
 
-    // 获取可选的域名参数
-    const customDomain = ctx.req.query('domain');
 
-    return await getHlcg(category, customDomain);
+    return await getHlcg(category);
 }
