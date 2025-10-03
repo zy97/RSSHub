@@ -53,7 +53,7 @@ export type NamespacesType = Record<
 
 let namespaces: NamespacesType = {};
 
-switch (process.env.NODE_ENV) {
+switch (process.env.NODE_ENV || process.env.VERCEL_ENV) {
     case 'production':
         namespaces = (await import('../assets/build/routes.js')).default;
         break;
@@ -155,7 +155,7 @@ const sortRoutes = (
         }
     >
 ) =>
-    Object.entries(routes).sort(([pathA], [pathB]) => {
+    Object.entries(routes).toSorted(([pathA], [pathB]) => {
         const segmentsA = pathA.split('/');
         const segmentsB = pathB.split('/');
         const lenA = segmentsA.length;
@@ -198,7 +198,11 @@ for (const namespace in namespaces) {
                         routeData.handler = route.handler;
                     }
                 }
-                ctx.set('data', await routeData.handler(ctx));
+                const response = await routeData.handler(ctx);
+                if (response instanceof Response) {
+                    return response;
+                }
+                ctx.set('data', response);
             }
         };
         subApp.get(path, wrappedHandler);
@@ -251,7 +255,7 @@ if (config.debugInfo) {
 app.use(
     '/*',
     serveStatic({
-        root: './lib/assets',
+        root: path.join(__dirname, 'assets'),
         rewriteRequestPath: (path) => (path === '/favicon.ico' ? '/favicon.png' : path),
     })
 );

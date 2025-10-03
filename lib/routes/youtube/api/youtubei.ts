@@ -1,8 +1,9 @@
+import { Data } from '@/types';
 import cache from '@/utils/cache';
+import { parseRelativeDate } from '@/utils/parse-date';
 import { Innertube } from 'youtubei.js';
 import utils, { getVideoUrl } from '../utils';
-import { Data } from '@/types';
-import { parseRelativeDate } from '@/utils/parse-date';
+import { getSrtAttachmentBatch } from './subtitles';
 
 const innertubePromise = Innertube.create();
 
@@ -22,6 +23,7 @@ export const getDataByChannelId = async ({ channelId, embed }: { channelId: stri
     const innertube = await innertubePromise;
     const channel = await innertube.getChannel(channelId);
     const videos = await channel.getVideos();
+    const videoSubtitles = await getSrtAttachmentBatch(videos.videos.filter((video) => 'video_id' in video).map((video) => video.video_id));
 
     return {
         title: `${channel.metadata.title || channelId} - YouTube`,
@@ -29,27 +31,31 @@ export const getDataByChannelId = async ({ channelId, embed }: { channelId: stri
         image: channel.metadata.avatar?.[0].url,
         description: channel.metadata.description,
 
-        item: videos.videos
-            .filter((video) => 'video_id' in video)
-            .map((video) => {
-                const img = 'best_thumbnail' in video ? video.best_thumbnail?.url : ('thumbnails' in video ? video.thumbnails?.[0]?.url : undefined);
+        item: await Promise.all(
+            videos.videos
+                .filter((video) => 'video_id' in video)
+                .map((video) => {
+                    const srtAttachments = videoSubtitles[video.video_id] || [];
+                    const img = 'best_thumbnail' in video ? video.best_thumbnail?.url : 'thumbnails' in video ? video.thumbnails?.[0]?.url : undefined;
 
-                return {
-                    title: video.title.text || `YouTube Video ${video.video_id}`,
-                    description: 'description_snippet' in video ? utils.renderDescription(embed, video.video_id, img, utils.formatDescription(video.description_snippet?.toHTML())) : null,
-                    link: `https://www.youtube.com/watch?v=${video.video_id}`,
-                    author: typeof video.author === 'string' ? video.author : (video.author.name === 'N/A' ? undefined : video.author.name),
-                    image: img,
-                    pubDate: 'published' in video && video.published?.text ? parseRelativeDate(video.published.text) : undefined,
-                    attachments: [
-                        {
-                            url: getVideoUrl(video.video_id),
-                            mime_type: 'text/html',
-                            duration_in_seconds: video.duration && 'seconds' in video.duration ? video.duration.seconds : undefined,
-                        },
-                    ],
-                };
-            }),
+                    return {
+                        title: video.title.text || `YouTube Video ${video.video_id}`,
+                        description: 'description_snippet' in video ? utils.renderDescription(embed, video.video_id, img, utils.formatDescription(video.description_snippet?.toHTML())) : null,
+                        link: `https://www.youtube.com/watch?v=${video.video_id}`,
+                        author: typeof video.author === 'string' ? video.author : video.author.name === 'N/A' ? undefined : video.author.name,
+                        image: img,
+                        pubDate: 'published' in video && video.published?.text ? parseRelativeDate(video.published.text) : undefined,
+                        attachments: [
+                            {
+                                url: getVideoUrl(video.video_id),
+                                mime_type: 'text/html',
+                                duration_in_seconds: video.duration && 'seconds' in video.duration ? video.duration.seconds : undefined,
+                            },
+                            ...srtAttachments,
+                        ],
+                    };
+                })
+        ),
     };
 };
 
